@@ -84,8 +84,7 @@ final class GameModel {
             mistakes = saved.mistakes
             hintsUsed = saved.hintsUsed
         } else {
-            marks = Array(repeating: .empty, count: puzzle.cellCount)
-            for cell in puzzle.givens { marks[cell] = .cat }
+            marks = Self.freshMarks(for: puzzle)
             hearts = Self.startingHearts
             accumulated = 0
             mistakes = 0
@@ -187,8 +186,7 @@ final class GameModel {
     }
 
     func restart(at now: Date = .now) {
-        marks = Array(repeating: .empty, count: puzzle.cellCount)
-        for cell in puzzle.givens { marks[cell] = .cat }
+        marks = Self.freshMarks(for: puzzle)
         hearts = Self.startingHearts
         mistakes = 0
         hintsUsed = 0
@@ -263,6 +261,13 @@ final class GameModel {
     }
 
     // MARK: Private
+
+    /// An empty board with the free cats on it.
+    private static func freshMarks(for puzzle: Puzzle) -> [Mark] {
+        var marks = Array(repeating: Mark.empty, count: puzzle.cellCount)
+        for cell in puzzle.givens { marks[cell] = .cat }
+        return marks
+    }
 
     private func record() {
         history.append(marks)
