@@ -1,0 +1,33 @@
+feature,area,priority,original,clone,notes
+N×N board split into N colour regions,board,must,yes,yes,
+Rule: one cat per row column and region,rules,must,yes,yes,
+Rule: cats never touch including diagonally,rules,must,yes,yes,
+Tap cycle empty → X → cat → empty,input,must,yes,yes,
+Every board has exactly one solution reachable by logic,generator,must,yes,yes,
+Three hearts; wrong cat costs one,game,must,yes,yes,
+Out of hearts: retry the board,game,must,yes,yes,
+Timer and solve time,game,must,yes,yes,
+Win screen with time and best time,game,must,yes,yes,
+Campaign levels growing from small to 10×10,progression,must,yes,yes,
+Daily puzzle same for everyone,progression,must,yes,yes,
+Progress saved across launches,progression,must,yes,yes,
+iPhone and iPad layouts,platform,must,yes,yes,
+Free starting cat on early levels,progression,should,yes,yes,
+Undo,input,should,yes,yes,
+Hint that explains the deduction,input,should,inferred,yes,ours: shows the reason
+Auto-X around and in line with a placed cat,input,should,inferred,yes,setting
+Drag to paint X marks across cells,input,should,inferred,yes,
+Daily streak,progression,should,yes,yes,
+How to play screen,onboarding,should,yes,yes,
+Haptics and sound,feel,should,yes,partial,haptics yes; no sound yet
+Colour-blind patterns on regions,accessibility,should,no,yes,ours
+Stats screen,progression,could,yes,yes,
+Highlight conflicts as you go,input,could,inferred,no,not needed: wrong cats are rejected at once
+Level list with best times,progression,could,yes,partial,best times per size in Stats; no level list
+Resume a board after relaunch,game,could,inferred,yes,
+Dark mode,platform,could,inferred,no,
+Remove Ads IAP,monetization,could,yes,no,decided in /replica-launch
+Global leaderboards,social,could,yes,skip,their network; Game Center later
+Seasonal art events,content,could,yes,skip,their art and themes
+Weekly premium subscriptions,monetization,could,yes,skip,monetization stays simple
+62 languages,platform,could,yes,skip,English first
