@@ -1,5 +1,6 @@
-# This workflow will build a Swift project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-swift
+# Builds and tests the NapSpot iOS app on iPhone and iPad simulators.
+# The Xcode project is generated from project.yml by XcodeGen,
+# so there is no Package.swift and `swift build` does not apply.
 
 name: Swift
 
@@ -11,12 +12,58 @@ on:
 
 jobs:
   build:
-
-    runs-on: macos-latest
+    runs-on: macos-15
 
     steps:
     - uses: actions/checkout@v4
-    - name: Build
-      run: swift build -v
-    - name: Run tests
-      run: swift test -v
+
+    - name: Install XcodeGen
+      run: brew install xcodegen
+
+    - name: Generate Xcode project
+      run: xcodegen generate
+
+    - name: Pick iPhone and iPad simulators
+      id: sim
+      run: |
+        pick() {
+          xcrun simctl list devices available -j \
+            | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; print(next(x["udid"] for r,v in d.items() if "iOS" in r for x in v if x["name"].startswith(sys.argv[1])))' "$1"
+        }
+        iphone=$(pick iPhone); ipad=$(pick iPad)
+        echo "Using iPhone $iphone and iPad $ipad"
+        echo "iphone=$iphone" >> "$GITHUB_OUTPUT"
+        echo "ipad=$ipad" >> "$GITHUB_OUTPUT"
+
+    - name: Build and test on iPhone
+      run: |
+        status=0
+        xcodebuild test \
+          -project NapSpot.xcodeproj \
+          -scheme NapSpot \
+          -destination "id=${{ steps.sim.outputs.iphone }}" \
+          CODE_SIGNING_ALLOWED=NO \
+          > xcodebuild.log 2>&1 || status=$?
+        grep -E "error:|Test Case .* failed|✘|Executed|\*\* (BUILD|TEST)" xcodebuild.log || tail -50 xcodebuild.log
+        exit $status
+
+    - name: Build for iPad
+      run: |
+        status=0
+        xcodebuild build \
+          -project NapSpot.xcodeproj \
+          -scheme NapSpot \
+          -destination "id=${{ steps.sim.outputs.ipad }}" \
+          CODE_SIGNING_ALLOWED=NO \
+          > xcodebuild-ipad.log 2>&1 || status=$?
+        grep -E "error:|\*\* BUILD" xcodebuild-ipad.log || tail -50 xcodebuild-ipad.log
+        exit $status
+
+    - name: Upload build logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: xcodebuild-logs
+        path: |
+          xcodebuild.log
+          xcodebuild-ipad.log
